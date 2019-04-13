@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Wallowa County, OR: Land Use History and Rangeland Monitoring </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--meta data for sharing links on Facebook-->
+    <meta property="og:title" content="The major cities in Oregon"/>
+    <meta property="og:url" content="http://geoviz.ceoas.oregonstate.edu/storymap/examples/2.5/video.html"/>
+    <meta property="og:description" content="This is an example of a storymap."/>
+    <meta property="og:image" content="../../img/social.png"/>
+
+    <!--add required stylesheets-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!--leaflet css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"/>
+
+    <!--add favicon for the web page-->
+    <link rel="shortcut icon" href="../../img/favicon.ico" type="image/x-icon">
+
+    <!--Fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Cairo" rel="stylesheet">
+
+
+    <link rel="stylesheet" type="text/css" href="css/storymap.2.5.css">
+    <!--add required libraries-->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js"></script>
+    <!--jquery-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+
+    <!--boostrap-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!--leaflet.ajax for asynchronously adding geojson data-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+
+    <!--mini globle map-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+    <script src="js/globeminimap.js"></script>
+    <!-- <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script> -->
+    <!--story map plugin-->
+    <script src="js/storymap.2.5.js"></script>
+</head>
+<body>
+
+<div id="storymap" class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6 col-md-4 storymap-story">
+
+            <section data-scene="survsite">
+                <h3>Map of Wallowa County </h3>
+                <h4>with survey site location for WILL60. </h4>
+
+            </section>
+
+        </div>
+        <!--map div-->
+        <div class="col-sm-6 col-md-8 storymap-map"></div>
+    </div>
+
+
+</div>
+
+<!-- main javascript -->
+<script type="text/javascript">
+
+
+  // Create Legend Contents
+
+
+    var el_leg_tit =  '<b> Elevation Classes (ft)</b><br />';
+    var el_leg_1000 =  '<i style="background: rgb(225, 225, 200); opacity: 0.5"></i><p><b>Under 1000</b></p>';
+    var el_leg_2000 =  '<i style="background: rgb(215, 194, 158); opacity: 0.5"></i><p><b>Under 2000</b></p>';
+    var el_leg_3100 =  '<i style="background: rgb(112, 168, 0); opacity: 0.5"></i><p><b>Under 3100</b></p>';
+    var el_leg_5100 =  '<i style="background: rgb(230, 230, 0); opacity: 0.5"></i><p><b>Under 5100</b></p>';
+    var el_leg_5500 =  '<i style="background: rgb(168, 112, 0); opacity: 0.5"></i><p><b>Under 5500</b></p>';
+    var el_leg_7520 =  '<i style="background: rgb(204, 204, 204); opacity: 0.5"></i><p><b>Under 7500</b></p>';
+    var el_leg_9820 =  '<i style="background: rgb(255, 255, 255); opacity: 0.5"></i><p><b>Under 9825</b></p>';
+
+
+
+    var layers = {
+        ESRI: {layer: L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')},
+
+        esriworldshadedrelief: {layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}.png')},
+
+        mboxroadswater: {layer: L.tileLayer('https://api.mapbox.com/styles/v1/hogrefek/cjt66knal0qdj1fsafcsne5m9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiaG9ncmVmZWsiLCJhIjoiY2pycWZha3FuMW81aDQzbXVxbDV6ZWZraiJ9.Kkt53JWsV-7-kRGVq7zBSw')},
+
+        // mboxroadswater: {layer: L.tileLayer('https://api.mapbox.com/styles/v1/hogrefek/cjt66knal0qdj1fsafcsne5m9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiaG9ncmVmZWsiLCJhIjoiY2pycWZha3FuMW81aDQzbXVxbDV6ZWZraiJ9.Kkt53JWsV-7-kRGVq7zBSw')},
+
+
+
+        elev: {layer: L.tileLayer('assets/elevation/{z}/{x}/{y}.png',{
+            maxZoom: 10,
+            tms:false,
+            opacity: 0.8,
+            attribution: 'Dataset generated by LandTrendr, Tiles generated by QTiles'}
+        )},
+
+        elevc: {layer: L.tileLayer('assets/elevcolor/{z}/{x}/{y}.png',{
+            maxZoom: 10,
+            tms:false,
+            opacity: 0.7,
+            attribution: 'Dataset generated by LandTrendr, Tiles generated by QTiles'
+          }), legend: [el_leg_tit, el_leg_1000, el_leg_2000, el_leg_3100, el_leg_5100, el_leg_5500, el_leg_7520, el_leg_9820]
+        },
+
+        elevc2: {layer: L.tileLayer('assets/elevcolor/{z}/{x}/{y}.png',{
+            maxZoom: 10,
+            tms:false,
+            opacity: 0.7,
+            attribution: 'Dataset generated by LandTrendr, Tiles generated by QTiles'}
+          )},
+
+        wcounty: {layer: L.geoJson.ajax('assets/wcboundary.geojson',{
+            color: 'black',
+            weight: 2,
+            opacity: 0.3}
+        )},
+        wcountydet: {layer: L.geoJson.ajax('assets/wcboundarycompL.json',{
+            color: 'black',
+            weight: 2,
+            opacity: 0.9}
+        )},
+
+
+    };
+
+    var scenes = {
+        // overview: {lat: 44.0000000, lng: -123.5000000, zoom: 7, name: 'Cover Page', layers: []},
+        survsite: {lat: 45.540, lng: -117.60, zoom: 10, name: 'nezperce', layers: [layers.elevc,layers.wcountydet,layers.mboxroadswater]}
+
+    };
+
+    $('#storymap').storymap({
+        scenes: scenes,
+        baselayer: layers.esriworldshadedrelief,
+        legend: false, // if you do not want a legend feature, you can simply not define the createLegend function.
+        credits: "",
+        loader: true,
+        scalebar: false,
+        flyo: true,
+        navwidget: true,
+
+        createMap: function () {
+            // create a map in the "map" div, set the view to a given place and zoom
+            var map = L.map($(".storymap-map")[0], {
+                zoomControl: false, scrollWheelZoom: false, fadeAnimation: true,
+                zoomAnimation: true
+            }).setView([44, -120], 7);
+
+            //add an miniglobe
+            new L.Control.GlobeMiniMap({
+                marker: 'red',
+                position: 'bottomright'
+            }).addTo(map);
+
+            var myDataPoint = L.marker([45.71823, -117.03168]).addTo(map);
+
+            return map;
+        }
+    });
+</script>
+</body>
+</html>
